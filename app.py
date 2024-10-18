@@ -1,12 +1,20 @@
 """ App file for language pal """
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, request, render_template, jsonify
 
 app = Flask(__name__)
 
 # Sample data
 available_languages = ['French', 'English', 'Spanish', 'Czech']
 favorite_languages = ['French', 'English']
+
+# tracks message no
+language_counts = {
+    'French': 0,
+    'English': 0,
+    'Spanish': 0,
+    'Czech': 0
+}
 
 
 @app.route('/')
@@ -43,12 +51,29 @@ def send_message():
     """
     Receive the user's message and return a predefined response.
     """
-    # data = request.get_json()
+    data = request.get_json()
     # user_message = data.get('message')
-    # language = data.get('language')
+    language = data.get('language')
+    print(language)
 
-    # For now, return the same response every time
     response_message = "This is a static response for testing."
+
+    if language == "French":
+        if language_counts["French"] == 0:
+            language_counts["French"] += 1
+            response_message = "Bonjour"
+        if language_counts["French"] == 1:
+            language_counts["French"] += 1
+            response_message = "Ca va bein. Ou est-tu?"
+        if language_counts["French"] == 2:
+            response_message = "Au Revoir!"
+    elif language == "Czech":
+        if language_counts["Czech"] == 0:
+            language_counts["Czech"] += 1
+            response_message = "Ahoj!"
+        if language_counts["Czech"] == 1:
+            language_counts["Czech"] += 1
+            response_message = "Jaký máš plán na dnešní den?"
 
     return jsonify({'response': response_message})
 
