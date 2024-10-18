@@ -170,6 +170,17 @@
             .then(data => {
                 chatBox.innerHTML += `<p><strong>Language Pal:</strong> ${data.response}</p>`;
                 chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom of the chat box
+                saveConversation(userMessage, data.response); // Save the conversation
+            });
+        }
+
+        function saveConversation(userMessage, botResponse) {
+            fetch('/save_conversation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({language: '{{ language }}', user: userMessage, bot: botResponse})
             });
         }
 

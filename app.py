@@ -14,6 +14,13 @@ language_counts = {
     'Czech': 0
 }
 
+# Store previous conversations
+conversations = {
+    'French': [],
+    'English': [],
+    'Spanish': [],
+    'Czech': []
+}
 
 @app.route('/')
 def home():
@@ -29,7 +36,6 @@ def login():
     Hardcoded login function that always redirects to home
     """
     if request.method == 'POST':
-        # No matter what the input is, redirect to the home page
         return redirect(url_for('home'))
     
     return render_template('login.html')
@@ -47,19 +53,16 @@ def languages():
     })
 
 
-# Move the dynamic route after static routes to avoid conflicts
 @app.route('/<language>/')
 def chat(language):
     """
     Render the chat page for the selected language.
     """
-    # Capitalize language to match
     language = language.capitalize()
     
     if language in available_languages:
         return render_template('chat.html', language=language)
     else:
-        # If the language is not available, redirect to home (or handle as you wish)
         return redirect(url_for('home'))
 
 
@@ -70,7 +73,7 @@ def send_message():
     """
     data = request.get_json()
     language = data.get('language')
-    print(language)
+    user_message = data.get('message')
 
     response_message = "This is a static response for testing."
 
@@ -80,7 +83,7 @@ def send_message():
             response_message = "Bonjour"
         elif language_counts["French"] == 1:
             language_counts["French"] += 1
-            response_message = "Ca va bien. Où es-tu?"
+            response_message = "Ça va bien. Où es-tu?"
         elif language_counts["French"] == 2:
             response_message = "Au revoir!"
     elif language == "Czech":
@@ -91,8 +94,30 @@ def send_message():
             language_counts["Czech"] += 1
             response_message = "Jaký máš plán na dnešní den?"
 
-    return jsonify({'response': response_message})
+    # Store the conversation
+    conversations[language].append({'user': user_message, 'bot': response_message})
 
+    return jsonify({'response': response_message, 'conversations': conversations[language]})
+
+
+
+@app.route('/save_conversation', methods=['POST'])
+def save_conversation():
+    data = request.get_json()
+    language = data.get('language')
+    user_message = data.get('user')
+    bot_response = data.get('bot')
+
+    if language not in conversations:
+        conversations[language] = []
+
+    conversations[language].append({'user': user_message, 'bot': bot_response})
+
+    return jsonify(success=True)
+
+@app.route('/get_conversation/<language>', methods=['GET'])
+def get_conversation(language):
+    return jsonify(conversations.get(language, []))
 
 if __name__ == "__main__":
     app.run(debug=True)
