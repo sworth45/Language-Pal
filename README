@@ -1,0 +1,6 @@
+This is the repository for the Language Pal project. For more information visit
+
+To activate the webpage locally, from the terminal run
+    python app.py
+From your web browser of choice, navigate to
+    http://127.0.0.1:5000/
