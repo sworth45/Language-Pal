@@ -100,21 +100,6 @@ def send_message():
     return jsonify({'response': response_message, 'conversations': conversations[language]})
 
 
-
-@app.route('/save_conversation', methods=['POST'])
-def save_conversation():
-    data = request.get_json()
-    language = data.get('language')
-    user_message = data.get('user')
-    bot_response = data.get('bot')
-
-    if language not in conversations:
-        conversations[language] = []
-
-    conversations[language].append({'user': user_message, 'bot': bot_response})
-
-    return jsonify(success=True)
-
 @app.route('/get_conversation/<language>', methods=['GET'])
 def get_conversation(language):
     return jsonify(conversations.get(language, []))
