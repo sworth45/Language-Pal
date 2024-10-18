@@ -11,25 +11,22 @@
     <div class="container">
         <h1>Language Pal</h1>
         <button id="info-button">What is Language Pal?</button>
+        <br><br>
+        <!-- Button to go back to login -->
+        <button id="login-button" onclick="location.href='/login'">Back to Login</button>
         
         <h2>Favorites</h2>
         <div id="favorites">
             <!-- Favorite languages will be inserted here dynamically -->
         </div>
-        
         <h2>Languages</h2>
         <div id="language-list">
             <!-- Language buttons will be inserted here dynamically -->
         </div>
-
-        <!-- Added login button -->
-        <div class="login-container">
-            <button id="login-button" onclick="window.location.href='{{ url_for('login') }}'">Go to Login</button>
-        </div>
     </div>
 
     <!-- Modal structure -->
-    <div id="info-modal" class="modal">
+    <div id="info-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>What is Language Pal?</h2>
@@ -61,6 +58,11 @@
                 modal.style.display = "none";
             }
         }
+
+        // Ensure modal is closed on page load
+        window.onload = function() {
+            modal.style.display = "none"; // Make sure the modal is closed
+        };
     </script>
     <script src="/static/script.js"></script>
 </body>
