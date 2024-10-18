@@ -16,9 +16,15 @@
         <div id="favorites">
             <!-- Favorite languages will be inserted here dynamically -->
         </div>
+        
         <h2>Languages</h2>
         <div id="language-list">
             <!-- Language buttons will be inserted here dynamically -->
+        </div>
+
+        <!-- Added login button -->
+        <div class="login-container">
+            <button id="login-button" onclick="window.location.href='{{ url_for('login') }}'">Go to Login</button>
         </div>
     </div>
 
