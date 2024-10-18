@@ -54,6 +54,10 @@
             margin-right: 10px;
         }
 
+        #proficiency-select {
+            margin-right: 10px;
+        }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -106,29 +110,6 @@
             margin-top: 10px;
             padding: 5px;
         }
-
-        /* Proficiency toggle styles */
-        #proficiency-container {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .proficiency-toggle {
-            display: flex;
-            align-items: center;
-        }
-
-        .proficiency-toggle label {
-            margin-right: 10px;
-        }
-
-        .proficiency-toggle select {
-            padding: 5px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
@@ -140,7 +121,6 @@
         <div id="conversation" class="conversation">
             <!-- Previous conversations will appear here -->
         </div>
-        <button onclick="newConversation()">Start New Conversation</button>
     </div>
 
     <div id="chat-container">
@@ -151,19 +131,13 @@
         </div>
 
         <div id="chat-input-container">
+            <select id="proficiency-select">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+            </select>
             <input type="text" id="user-input" placeholder="Type a message..." />
             <button onclick="sendMessage()">Send</button>
-        </div>
-
-        <div id="proficiency-container">
-            <div class="proficiency-toggle">
-                <label for="proficiency-select">Proficiency Level:</label>
-                <select id="proficiency-select" onchange="changeProficiency()">
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                </select>
-            </div>
         </div>
 
         <div class="button-container">
@@ -172,8 +146,6 @@
     </div>
 
     <script>
-        let currentConversationId = 0;
-
         function goBack() {
             window.location.href = '/';
         }
@@ -188,33 +160,37 @@
             }
         }
 
-        function newConversation() {
-            currentConversationId += 1;  // Increment to a new conversation ID
-            document.getElementById('chat-box').innerHTML = "";  // Clear chat box for new conversation
-        }
-
         function sendMessage() {
             let userMessage = document.getElementById('user-input').value;
+            let proficiency = document.getElementById('proficiency-select').value;
             if (userMessage.trim() === "") return; // Ignore empty messages
 
             let chatBox = document.getElementById('chat-box');
             chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
             document.getElementById('user-input').value = "";  // Clear the input field
 
-            // Get the selected proficiency level
-            let proficiencyLevel = document.getElementById('proficiency-select').value;
-
             fetch('/send_message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({message: userMessage, language: '{{ language }}', conversation_id: currentConversationId, proficiency: proficiencyLevel})
+                body: JSON.stringify({message: userMessage, language: '{{ language }}', proficiency: proficiency})
             })
             .then(response => response.json())
             .then(data => {
                 chatBox.innerHTML += `<p><strong>Language Pal:</strong> ${data.response}</p>`;
                 chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom of the chat box
+                saveConversation(userMessage, data.response); // Save the conversation
+            });
+        }
+
+        function saveConversation(userMessage, botResponse) {
+            fetch('/save_conversation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({language: '{{ language }}', user: userMessage, bot: botResponse})
             });
         }
 
@@ -224,19 +200,11 @@
                 .then(data => {
                     let conversationDiv = document.getElementById('conversation');
                     conversationDiv.innerHTML = "";  // Clear current conversation
-                    data.forEach((conv, index) => {
-                        conversationDiv.innerHTML += `<h3>Conversation ${index + 1}</h3>`;
-                        conv.forEach(message => {
-                            conversationDiv.innerHTML += `<p><strong>You:</strong> ${message.user}</p>`;
-                            conversationDiv.innerHTML += `<p><strong>Language Pal:</strong> ${message.bot}</p>`;
-                        });
+                    data.forEach(message => {
+                        conversationDiv.innerHTML += `<p><strong>You:</strong> ${message.user}</p>`;
+                        conversationDiv.innerHTML += `<p><strong>Language Pal:</strong> ${message.bot}</p>`;
                     });
                 });
-        }
-
-        function changeProficiency() {
-            // This function can be used to handle proficiency level change events if needed
-            console.log("Proficiency level changed to: " + document.getElementById('proficiency-select').value);
         }
     </script>
 </body>

@@ -74,25 +74,17 @@ def send_message():
     data = request.get_json()
     language = data.get('language')
     user_message = data.get('message')
+    proficiency = data.get('proficiency')  # Get proficiency from the request
 
+    # Dummy response generation based on proficiency (customize as needed)
     response_message = "This is a static response for testing."
 
-    if language == "French":
-        if language_counts["French"] == 0:
-            language_counts["French"] += 1
-            response_message = "Bonjour"
-        elif language_counts["French"] == 1:
-            language_counts["French"] += 1
-            response_message = "Ça va bien. Où es-tu?"
-        elif language_counts["French"] == 2:
-            response_message = "Au revoir!"
-    elif language == "Czech":
-        if language_counts["Czech"] == 0:
-            language_counts["Czech"] += 1
-            response_message = "Ahoj!"
-        elif language_counts["Czech"] == 1:
-            language_counts["Czech"] += 1
-            response_message = "Jaký máš plán na dnešní den?"
+    if proficiency == "beginner":
+        response_message = "Here's a simple response."
+    elif proficiency == "intermediate":
+        response_message = "This response is a bit more complex."
+    elif proficiency == "advanced":
+        response_message = "This is a detailed response with more depth."
 
     # Store the conversation
     conversations[language].append({'user': user_message, 'bot': response_message})
