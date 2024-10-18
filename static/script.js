@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function openChat(language) {
-    // This function will eventually load the chat window for the selected language
-    alert(`Open chat for ${language}`);
+   // Convert the language to lowercase and replace spaces with dashes if needed
+   let urlLanguage = language.toLowerCase().replace(/\s+/g, '-');
+    
+   // Redirect to the new URL for the language chat page
+   window.location.href = `http://127.0.0.1:5000/${urlLanguage}/`;
 }

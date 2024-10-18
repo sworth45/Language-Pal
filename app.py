@@ -29,5 +29,20 @@ def languages():
     })
 
 
+@app.route('/<language>/')
+def chat(language):
+    """
+    Render the chat page for the selected language.
+    """
+    # Convert the language from URL back to a readable
+    #  format (capitalize first letter, etc.)
+    language = language.capitalize()
+
+    # Render the chat page
+    #  (you can create a separate chat.html template for this)
+    return render_template('chat.html', language=language)
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
