@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 
 app = Flask(__name__)
 
@@ -26,20 +26,12 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    Login function
+    Hardcoded login function that always redirects to home
     """
     if request.method == 'POST':
-        # Process login form (currently hardcoded login)
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        # You can add real authentication here
-        if username == 'admin' and password == 'password':  # Hardcoded example credentials
-            return redirect(url_for('home'))  # Redirect to home if login is successful
-        else:
-            error = "Invalid username or password. Please try again."
-            return render_template('login.html', error=error)
-
+        # No matter what the input is, redirect to the home page
+        return redirect(url_for('home'))
+    
     return render_template('login.html')
 
 
@@ -55,13 +47,20 @@ def languages():
     })
 
 
+# Move the dynamic route after static routes to avoid conflicts
 @app.route('/<language>/')
 def chat(language):
     """
     Render the chat page for the selected language.
     """
+    # Capitalize language to match
     language = language.capitalize()
-    return render_template('chat.html', language=language)
+    
+    if language in available_languages:
+        return render_template('chat.html', language=language)
+    else:
+        # If the language is not available, redirect to home (or handle as you wish)
+        return redirect(url_for('home'))
 
 
 @app.route('/send_message', methods=['POST'])
