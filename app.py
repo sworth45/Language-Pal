@@ -34,14 +34,23 @@ def chat(language):
     """
     Render the chat page for the selected language.
     """
-    # Convert the language from URL back to a readable
-    #  format (capitalize first letter, etc.)
     language = language.capitalize()
-
-    # Render the chat page
-    #  (you can create a separate chat.html template for this)
     return render_template('chat.html', language=language)
 
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    """
+    Receive the user's message and return a predefined response.
+    """
+    # data = request.get_json()
+    # user_message = data.get('message')
+    # language = data.get('language')
+
+    # For now, return the same response every time
+    response_message = "This is a static response for testing."
+
+    return jsonify({'response': response_message})
 
 
 if __name__ == "__main__":

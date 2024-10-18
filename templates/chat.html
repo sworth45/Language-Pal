@@ -9,13 +9,46 @@
 <body>
     <h1>Chat in {{ language }}</h1>
     
-    <!-- Chat interface can go here -->
+    <!-- Chat box -->
+    <div id="chat-box" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px;">
+        <!-- Messages will appear here -->
+    </div>
+
+    <!-- Message input and send button -->
+    <input type="text" id="user-input" placeholder="Type a message..." style="width: 80%;"/>
+    <button onclick="sendMessage()">Send</button>
 
     <button onclick="goBack()">Go Back to Languages</button>
 
     <script>
         function goBack() {
             window.location.href = '/';
+        }
+
+        // Function to send the message to the server
+        function sendMessage() {
+            let userMessage = document.getElementById('user-input').value;
+            if (userMessage.trim() === "") return; // Ignore empty messages
+
+            // Add user's message to the chat-box
+            let chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+            document.getElementById('user-input').value = "";  // Clear the input field
+
+            // Send the message to the server via fetch
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({message: userMessage, language: '{{ language }}'})
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Add server's message to the chat-box
+                chatBox.innerHTML += `<p><strong>Language Pal:</strong> ${data.response}</p>`;
+                chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom of the chat box
+            });
         }
     </script>
 </body>
