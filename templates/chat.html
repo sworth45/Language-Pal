@@ -10,7 +10,7 @@
             padding: 0;
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             height: 100vh;
         }
 
@@ -20,13 +20,12 @@
         }
 
         #chat-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
             justify-content: space-between;
             max-width: 800px;
             margin: 0 auto;
-            border: 1px solid #ccc;
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -70,33 +69,70 @@
             background-color: #0056b3;
         }
 
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
+        #toggle-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: left 0.3s;
         }
 
+        #conversation-panel {
+            width: 250px;
+            background: #f1f1f1;
+            border-right: 1px solid #ccc;
+            padding: 10px;
+            position: absolute;
+            top: 0;
+            left: -250px; /* Hidden offscreen */
+            height: 100%;
+            transition: left 0.3s;
+        }
+
+        #conversation-panel.active {
+            left: 0; /* Slide in */
+        }
+
+        .conversation {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            margin-top: 10px;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Chat in {{ language }}</h1>
+    <button id="toggle-button" onclick="toggleConversation()">Toggle Conversations</button>
+
+    <div id="conversation-panel">
+        <h2>Previous Conversations</h2>
+        <div id="conversation" class="conversation">
+            <!-- Previous conversations will appear here -->
+        </div>
+    </div>
 
     <div id="chat-container">
-        <!-- Chat box -->
+        <h1>Chat in {{ language }}</h1>
+
         <div id="chat-box">
             <!-- Messages will appear here -->
         </div>
 
-        <!-- Input box and send button -->
         <div id="chat-input-container">
             <input type="text" id="user-input" placeholder="Type a message..." />
             <button onclick="sendMessage()">Send</button>
         </div>
 
-        <!-- Go Back Button -->
         <div class="button-container">
-            <button onclick="goBack()">Go Back to Languages</button>
+            <button onclick="goBack()">Go Back to Homepage</button>
         </div>
     </div>
 
@@ -105,17 +141,24 @@
             window.location.href = '/';
         }
 
-        // Function to send the message to the server
+        function toggleConversation() {
+            const panel = document.getElementById('conversation-panel');
+            const button = document.getElementById('toggle-button');
+            panel.classList.toggle('active');
+            button.style.left = panel.classList.contains('active') ? '250px' : '20px'; // Move button with the panel
+            if (panel.classList.contains('active')) {
+                fetchConversation(); // Fetch previous conversation when opening
+            }
+        }
+
         function sendMessage() {
             let userMessage = document.getElementById('user-input').value;
             if (userMessage.trim() === "") return; // Ignore empty messages
 
-            // Add user's message to the chat-box
             let chatBox = document.getElementById('chat-box');
             chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
             document.getElementById('user-input').value = "";  // Clear the input field
 
-            // Send the message to the server via fetch
             fetch('/send_message', {
                 method: 'POST',
                 headers: {
@@ -125,10 +168,22 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Add server's message to the chat-box
                 chatBox.innerHTML += `<p><strong>Language Pal:</strong> ${data.response}</p>`;
                 chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom of the chat box
             });
+        }
+
+        function fetchConversation() {
+            fetch(`/get_conversation/{{ language }}`)
+                .then(response => response.json())
+                .then(data => {
+                    let conversationDiv = document.getElementById('conversation');
+                    conversationDiv.innerHTML = "";  // Clear current conversation
+                    data.forEach(message => {
+                        conversationDiv.innerHTML += `<p><strong>You:</strong> ${message.user}</p>`;
+                        conversationDiv.innerHTML += `<p><strong>Language Pal:</strong> ${message.bot}</p>`;
+                    });
+                });
         }
     </script>
 </body>
