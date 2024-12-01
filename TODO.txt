@@ -1,0 +1,6 @@
+Add login/signup support
+update login page
+adjust main page ui (move faq, login)
+cache previous chat messages
+add actual ai powered chat messages
+add audio support

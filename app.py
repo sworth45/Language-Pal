@@ -31,6 +31,8 @@ def home():
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
+
 def login():
     """
     Hardcoded login function that always redirects to home
@@ -39,6 +41,18 @@ def login():
         return redirect(url_for('home'))
     
     return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup/', methods=['GET', 'POST'])
+def signup():
+    """
+    Hardcoded signup function that always redirects to home
+    """
+    if request.method == 'POST':
+        print("here")
+        return redirect(url_for('home'))
+    
+    return render_template('signup.html')
 
 
 @app.route('/languages')
