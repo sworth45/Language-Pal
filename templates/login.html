@@ -45,13 +45,28 @@
             font-size: 14px;
             color: #555;
         }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
 <div class="login-container">
-    <h2>Login</h2>
-    <form action="index.html" method="get">
+    <h2>Log In</h2>
+    <!-- Display error messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'error' %}
+                    <div class="error">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form action="/login" method="post">
         <input type="text" name="username" placeholder="Username" required><br>
         <input type="password" name="password" placeholder="Password" required><br>
         <button type="submit">Log In</button>

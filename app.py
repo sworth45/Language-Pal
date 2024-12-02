@@ -1,6 +1,20 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify
+from flask import Flask, request, render_template, redirect, url_for, jsonify, session, flash
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'your_secret_key' # TODO: add a secret key
+
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), nullable=False, unique=True)
+    password = db.Column(db.String(150), nullable=False)
+
 
 # Sample data
 available_languages = ['French', 'English', 'Spanish', 'Czech']
@@ -27,7 +41,18 @@ def home():
     """
     Home function
     """
-    return render_template('index.html')
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    username = session['username']
+
+    return render_template('index.html',username=username)
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -38,6 +63,19 @@ def login():
     Hardcoded login function that always redirects to home
     """
     if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Check user existence
+        user = User.query.filter_by(username=username).first()
+        if not user or not check_password_hash(user.password, password):
+            flash('Invalid username or password', 'error')
+            return redirect(url_for('login'))
+
+        # Create a session for the user
+        session['user_id'] = user.id
+        session['username'] = user.username
+
         return redirect(url_for('home'))
     
     return render_template('login.html')
@@ -49,8 +87,22 @@ def signup():
     Hardcoded signup function that always redirects to home
     """
     if request.method == 'POST':
-        print("here")
-        return redirect(url_for('home'))
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Check if user exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists', 'error')
+            return redirect(url_for('signup'))
+
+        # Hash the password and add user to the database
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return redirect(url_for('login'))
     
     return render_template('signup.html')
 
@@ -119,4 +171,6 @@ def get_conversation(language):
     return jsonify(conversations.get(language, []))
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()  # This will create the tables if they do not exist
     app.run(debug=True)
