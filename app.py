@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from database import db, User, FavoriteLanguage, Conversation
 
 app = Flask(__name__)
 
@@ -8,12 +9,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key' # TODO: add a secret key
 
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False, unique=True)
-    password = db.Column(db.String(150), nullable=False)
+db.init_app(app)
 
 
 # Sample data
