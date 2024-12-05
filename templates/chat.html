@@ -85,7 +85,7 @@
             width: 250px;
             background: #f1f1f1;
             border-right: 1px solid #ccc;
-            padding: 10px;
+            padding: 20px;
             position: absolute;
             top: 0;
             left: -250px; /* Hidden offscreen */
@@ -97,18 +97,22 @@
             left: 0; /* Slide in */
         }
 
+        #conversation-panel button {
+            margin-bottom: 15px;
+        }
+
         .conversation {
             max-height: 300px;
             overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 5px;
             background: #fff;
-            margin-top: 10px;
+            margin: 10px 0;
             padding: 5px;
         }
 
         /* Proficiency toggle styles */
-        #proficiency-container {
+        #proficiency-back-homepage-container {
             margin-top: 20px;
             display: flex;
             justify-content: space-between;
@@ -137,10 +141,10 @@
 
     <div id="conversation-panel">
         <h2>Previous Conversations</h2>
+        <button onclick="newConversation()">Start New Conversation</button>
         <div id="conversation" class="conversation">
             <!-- Previous conversations will appear here -->
         </div>
-        <button onclick="newConversation()">Start New Conversation</button>
     </div>
 
     <div id="chat-container">
@@ -155,7 +159,7 @@
             <button onclick="sendMessage()">Send</button>
         </div>
 
-        <div id="proficiency-container">
+        <div id="proficiency-back-homepage-container">
             <div class="proficiency-toggle">
                 <label for="proficiency-select">Proficiency Level:</label>
                 <select id="proficiency-select" onchange="changeProficiency()">
@@ -164,10 +168,9 @@
                     <option value="Advanced">Advanced</option>
                 </select>
             </div>
-        </div>
-
-        <div class="button-container">
-            <button onclick="goBack()">Go Back to Homepage</button>
+            <div class="button-container">
+                <button onclick="goBack()">Go Back to Homepage</button>
+            </div>
         </div>
     </div>
 
