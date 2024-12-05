@@ -119,6 +119,11 @@
             margin-top: 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .proficiency-toggle {
@@ -128,13 +133,34 @@
 
         .proficiency-toggle label {
             margin-right: 10px;
+            font-weight: 600;
+            color: #495057;
         }
 
         .proficiency-toggle select {
-            padding: 5px;
+            padding: 8px 12px;
             font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            background-color: white;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .proficiency-toggle select:hover {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .proficiency-toggle select:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+        }
+
+        .proficiency-toggle select option {
+            padding: 10px;
         }
 
         #record-btn, #stop-btn {
