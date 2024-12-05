@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from database import db, User, FavoriteLanguage, Conversation
+from database import db, User, user_data
 
 app = Flask(__name__)
 
@@ -73,6 +73,10 @@ def login():
         # Create a session for the user
         session['user_id'] = user.id
         session['username'] = user.username
+        #initializes struct for user
+        if(username not in user_data.keys()):
+            user_data[user.id] = {}
+
 
         return redirect(url_for('home'))
     
