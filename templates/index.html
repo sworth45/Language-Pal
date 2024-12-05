@@ -13,9 +13,6 @@
             background-color: #333;
             color: white;
             padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             position: fixed;
             top: 0;
             left: 0;
@@ -24,16 +21,23 @@
         }
 
         .header .username {
-            font-size: 18px;
+            font-size: 35px;
+            float: left;
         }
 
         .header .signout-button {
-            padding: 5px 10px;
+            padding: 5px 5px;
             background-color: #d9534f;
             color: white;
+            text-align: center;
+            width: 10%;
             border: none;
+            /* make it so that there is a border of 15 px bw right side of nav bar and button */
+            margin-right: 35px;
             border-radius: 5px;
             cursor: pointer;
+            float: right;
+            font-size: 25px;
         }
 
         .header .signout-button:hover {
@@ -43,6 +47,13 @@
         /* Main container styles */
         .container {
             padding: 20px;
+        }
+
+        .language-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #28a745;
         }
 
         /* Modal styles */
@@ -87,26 +98,23 @@
     <!-- Header -->
     <div class="header">
         <div class="username">Welcome, {{ username }}</div>
-        <a href="/logout">
-            <button class="signout-button">Sign Out</button>
-        </a>
+        <button class="signout-button" onclick="window.location.href='/logout';">Sign Out</button>
     </div>
 
     <div class="container">
         <h1>Language Pal</h1>
         <button id="info-button">What is Language Pal?</button>
-        <br><br>
-        <!-- Button to go back to login -->
-        <button id="login-button" onclick="location.href='/login'">Back to Login</button>
         
-        <h2>Favorites</h2>
-        <div id="favorites">
-            <!-- Favorite languages will be inserted here dynamically -->
-        </div>
-        <h2>Languages</h2>
+        <div class="language-container">
+            <h2>Favorites</h2>
+            <div id="favorites">
+                <!-- Favorite languages will be inserted here dynamically -->
+            </div>
+            <h2>Languages</h2>
         <div id="language-list">
             <!-- Language buttons will be inserted here dynamically -->
         </div>
+    </div>
     </div>
 
     <!-- Modal structure -->
