@@ -66,6 +66,72 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        
+        #toggle-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: left 0.3s;
+        }
+
+        #conversation-panel {
+            width: 250px;
+            background: #f1f1f1;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: -250px; /* Hidden offscreen */
+            height: 100%;
+            transition: left 0.3s;
+        }
+
+        #conversation-panel.active {
+            left: 0; /* Slide in */
+        }
+
+        #conversation-panel button {
+            margin-bottom: 15px;
+        }
+
+        .conversation {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            margin: 10px 0;
+            padding: 5px;
+        }
+
+        /* Proficiency toggle styles */
+        #proficiency-back-homepage-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .proficiency-toggle {
+            display: flex;
+            align-items: center;
+        }
+
+        .proficiency-toggle label {
+            margin-right: 10px;
+        }
+
+        .proficiency-toggle select {
+            padding: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +154,20 @@
         <div id="chat-input-container">
             <input type="text" id="user-input" placeholder="Type a message..." />
             <button onclick="sendMessage()">Send</button>
+        </div>
+
+        <div id="proficiency-back-homepage-container">
+            <div class="proficiency-toggle">
+                <label for="proficiency-select">Proficiency Level:</label>
+                <select id="proficiency-select" onchange="changeProficiency()">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="button-container">
+                <button onclick="goBack()">Go Back to Homepage</button>
+            </div>
         </div>
     </div>
 
