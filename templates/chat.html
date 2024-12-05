@@ -136,6 +136,28 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
+        #record-btn, #stop-btn {
+            padding: 10px 20px;
+            margin-right: 5px;
+        }
+
+        #record-btn.recording {
+            background-color: #dc3545;
+        }
+
+        #record-btn i, #stop-btn i {
+            font-size: 16px;
+        }
+
+        .send-btn {
+            color: green;
+        }
+
+        #stop-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -157,7 +179,15 @@
 
         <div id="chat-input-container">
             <input type="text" id="user-input" placeholder="Type a message..." />
-            <button onclick="sendMessage()">Send</button>
+            <button id="record-btn" onclick="startRecording()">
+                <!-- <i class="fas fa-microphone">Record</i> -->
+                Record
+            </button>
+            <button id="stop-btn" onclick="stopRecording()" disabled>
+                <!-- <i class="fas fa-stop"></i> -->
+                Stop
+            </button>
+            <button id="send-btn" onclick="sendMessage()">Send</button>
         </div>
 
         <div id="proficiency-back-homepage-container">
@@ -179,6 +209,17 @@
         let currentConversationId = 0;
         let newConversation = false;
         let currentConversationIndex = null;
+        let recognition;
+        let isRecording = false;
+
+        let currentLanguage = '{{ language }}';
+
+        const languageToCode = {
+            'Spanish': 'es-ES',
+            'French': 'fr-FR',
+            'English': 'en-US',
+            'Czech': 'cs-CZ'
+        };
 
         function goBack() {
             window.location.href = '/';
@@ -219,6 +260,20 @@
             document.getElementById('chat-box').innerHTML = '';  // Clear the chat box for a new conversation
         }
 
+        function speakMessage(message, language = languageToCode['{{ language }}']) {
+            const speech = new SpeechSynthesisUtterance(message);
+            const voices = window.speechSynthesis.getVoices();
+            let targetVoice = voices.find(voice => voice.lang === language);
+
+            if (targetVoice) {
+                speech.voice = targetVoice;
+            } else {
+                speech.lang = language;
+            }
+
+            window.speechSynthesis.speak(speech);
+        }
+
         function sendMessage() {
             let userMessage = document.getElementById('user-input').value;
             if (userMessage.trim() === "") return; // Ignore empty messages
@@ -242,13 +297,62 @@
             .then(response => response.json())
             .then(data => {
                 chatBox.innerHTML += `<p><strong>Language Pal:</strong> ${data.response}</p>`;
-                fetchConversations();  // Refresh the conversation list
-                chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom of the chat box
-                newConversation = false;  // Reset the new conversation flag
+                speakMessage(data.response);
+                fetchConversations();
+                chatBox.scrollTop = chatBox.scrollHeight;
+                newConversation = false;
                 if (currentConversationIndex === null) {
-                    currentConversationIndex = data.conversations.length - 1;  // Set the current conversation index to the new conversation
+                    currentConversationIndex = data.conversations.length - 1;
                 }
             });
+        }
+
+        function startRecording() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Your browser does not support speech recognition.");
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = languageToCode['{{ language }}'] || 'en-US';
+            recognition.interimResults = true;
+            recognition.continuous = true;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById("record-btn").disabled = true;
+                document.getElementById("stop-btn").disabled = false;
+                document.getElementById("record-btn").classList.add("recording");
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = "";
+                let finalTranscript = "";
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                document.getElementById("user-input").value = finalTranscript + interimTranscript;
+            };
+
+            recognition.start();
+        }
+
+        function stopRecording() {
+            if (isRecording && recognition) {
+                isRecording = false;
+                recognition.stop();
+                document.getElementById("record-btn").disabled = false;
+                document.getElementById("stop-btn").disabled = true;
+                document.getElementById("record-btn").classList.remove("recording");
+            }
         }
 
         document.addEventListener("DOMContentLoaded", function() {
