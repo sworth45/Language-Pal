@@ -140,27 +140,8 @@
         .proficiency-toggle select {
             padding: 8px 12px;
             font-size: 16px;
-            border: 2px solid #007bff;
-            border-radius: 6px;
-            background-color: white;
-            color: #495057;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .proficiency-toggle select:hover {
-            border-color: #0056b3;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-        }
-
-        .proficiency-toggle select:focus {
-            outline: none;
-            border-color: #0056b3;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
-        }
-
-        .proficiency-toggle select option {
-            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         #record-btn, #stop-btn {
@@ -301,8 +282,13 @@
         }
 
         function sendMessage() {
+            // Stop recording if it's active
+            if (isRecording) {
+                stopRecording();
+            }
+
             let userMessage = document.getElementById('user-input').value;
-            if (userMessage.trim() === "") return; // Ignore empty messages
+            if (userMessage.trim() === "") return;
 
             let chatBox = document.getElementById('chat-box');
             chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
