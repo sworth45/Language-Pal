@@ -176,6 +176,10 @@
         let newConversation = false;
         let currentConversationIndex = null;
 
+        function goBack() {
+            window.location.href = '/';
+        }
+
         function fetchConversations() {
             fetch(`/get_conversation/{{ language }}`)
                 .then(response => response.json())
