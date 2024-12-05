@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend-only Speech Demo</title>
+</head>
+<body>
+    <h1>Speech-to-Text and Text-to-Speech Demo</h1>
+    
+    <!-- Recording Buttons -->
+    <button id="record-btn" onclick="startRecording()">Start Recording</button>
+    <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
+    <button id="reset-btn" onclick="reset()">Reset</button>
+    <button id="send-btn" onclick="sendTranscript()">Send Transcript</button>
+
+    <!-- Section to display the transcription -->
+    <h2>Transcription:</h2>
+    <p id="transcription"></p>
+
+    <!-- Section to display the response -->
+    <h2>Response:</h2>
+    <p id="response"></p>
+
+    <script>
+        let recognition;
+        let isRecording = false;
+        let fullTranscript = "";
+
+        function startRecording() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Your browser does not support speech recognition.");
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'es-MX';
+            recognition.interimResults = true;
+            recognition.continuous = true;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById("record-btn").disabled = true;
+                document.getElementById("stop-btn").disabled = false;
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = "";
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        fullTranscript += transcript + " ";
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                document.getElementById("transcription").textContent = fullTranscript + interimTranscript;
+            };
+
+            recognition.start();
+        }
+
+        function stopRecording() {
+            if (isRecording && recognition) {
+                isRecording = false;
+                recognition.stop();
+                document.getElementById("record-btn").disabled = false;
+                document.getElementById("stop-btn").disabled = true;
+            }
+        }
+
+        function reset() {
+            document.getElementById("transcription").textContent = "";
+            document.getElementById("response").textContent = "";
+            fullTranscript = "";
+        }
+
+        function sendTranscript() {
+            if (fullTranscript.trim() === "") {
+                alert("The transcript is empty. Please record something first.");
+                return;
+            }
+
+            const hardcodedResponse = "¡Buena pregunta!";
+            document.getElementById("response").textContent = hardcodedResponse;
+
+            // Text-to-speech response
+            const speech = new SpeechSynthesisUtterance(hardcodedResponse);
+            const voices = window.speechSynthesis.getVoices();
+            let spanishVoice = voices.find(voice => voice.lang === 'es-ES');
+
+            if (spanishVoice) {
+                speech.voice = spanishVoice;
+            } else {
+                speech.lang = 'es-ES';
+            }
+
+            window.speechSynthesis.speak(speech);
+            fullTranscript = "";
+        }
+    </script>
+</body>
+</html> 

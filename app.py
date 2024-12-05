@@ -1,6 +1,18 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify
+from flask import Flask, request, render_template, redirect, url_for, jsonify, session, flash
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from database import db, User, user_data
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'your_secret_key' # TODO: add a secret key
+
+#db = SQLAlchemy(app)
+
+db.init_app(app)
+
 
 # Sample data
 available_languages = ['French', 'English', 'Spanish', 'Czech']
@@ -24,13 +36,73 @@ conversations = {
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    """
+    Home function
+    """
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    username = session['username']
+
+    return render_template('index.html',username=username)
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
+
 def login():
     if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Check user existence
+        user = User.query.filter_by(username=username).first()
+        if not user or not check_password_hash(user.password, password):
+            flash('Invalid username or password', 'error')
+            return redirect(url_for('login'))
+
+        # Create a session for the user
+        session['user_id'] = user.id
+        session['username'] = user.username
+        #initializes struct for user
+        if(username not in user_data.keys()):
+            user_data[user.id] = {}
+
+
         return redirect(url_for('home'))
     return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup/', methods=['GET', 'POST'])
+def signup():
+    """
+    Hardcoded signup function that always redirects to home
+    """
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Check if user exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists', 'error')
+            return redirect(url_for('signup'))
+
+        # Hash the password and add user to the database
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return redirect(url_for('login'))
+    
+    return render_template('signup.html')
+
 
 @app.route('/languages')
 def languages():
@@ -89,4 +161,6 @@ def get_conversation(language):
     return jsonify(conversations.get(language, []))
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()  # This will create the tables if they do not exist
     app.run(debug=True)
