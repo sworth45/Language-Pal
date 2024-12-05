@@ -6,7 +6,6 @@
     <title>Language Pal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
-
     <style>
         /* Header styles */
         .header {
@@ -18,13 +17,12 @@
             left: 0;
             width: 100%;
             z-index: 100%;
+            overflow: hidden;
         }
-
         .header .username {
             font-size: 35px;
             float: left;
         }
-
         .header .signout-button {
             padding: 5px 5px;
             background-color: #d9534f;
@@ -32,64 +30,46 @@
             text-align: center;
             width: 10%;
             border: none;
-            /* make it so that there is a border of 15 px bw right side of nav bar and button */
             margin-right: 35px;
             border-radius: 5px;
             cursor: pointer;
             float: right;
             font-size: 25px;
         }
-
         .header .signout-button:hover {
             background-color: #c9302c;
         }
-
         /* Main container styles */
         .container {
-            padding: 20px;
+            padding-top: 200px;
+            padding-bottom: 40px;
+            width: 80%;
         }
-
-        .language-container button {
+        .language-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .language-card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .language-card button {
+            margin-top: 10px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-
-        .close-btn {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close-btn:hover,
-        .close-btn:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
+        .language-card button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -104,58 +84,109 @@
     <div class="container">
         <h1>Language Pal</h1>
         <button id="info-button">What is Language Pal?</button>
-        
-        <div class="language-container">
+    
+        <div>
             <h2>Favorites</h2>
-            <div id="favorites">
-                <!-- Favorite languages will be inserted here dynamically -->
+            <div id="favorites" class="language-container">
+                <!-- Favorite languages will be dynamically inserted here -->
             </div>
+        </div>
+    
+        <div>
             <h2>Languages</h2>
-        <div id="language-list">
-            <!-- Language buttons will be inserted here dynamically -->
+            <div id="languages" class="language-container">
+                <!-- Language cards will be dynamically inserted here -->
+            </div>
         </div>
-    </div>
-    </div>
-
-    <!-- Modal structure -->
-    <div id="info-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>What is Language Pal?</h2>
-            <p>Language Pal helps you practice languages at your own pace. 
-                Simply select a language, then choose your skill level (beginner, intermediate, advanced), and start a conversation by typing any message. 
-                You'll receive natural responses from the software, so it's a perfect, judgment-free space to improve your language skills!</p>
-        </div>
-    </div>
+    </div>    
 
     <script>
-        // Get modal element and buttons
-        var modal = document.getElementById('info-modal');
-        var infoButton = document.getElementById('info-button');
-        var closeBtn = document.getElementsByClassName('close-btn')[0];
+        // Example list of languages
+        const languages = ['English', 'Spanish', 'French', 'German', 'Italian'];
 
-        // Show the modal when the info button is clicked
-        infoButton.onclick = function() {
-            modal.style.display = "block";
+        // This will hold the user's favorites, using localStorage to persist across page reloads
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+        // Function to create a language card
+        function createLanguageCard(language, isFavorite) {
+            const card = document.createElement('div');
+            card.className = 'language-card';
+
+            // Add click listener to the card for chat redirection
+            card.onclick = () => openChat(language);
+
+            const languageName = document.createElement('h3');
+            languageName.textContent = language;
+            card.appendChild(languageName);
+
+            const favButton = document.createElement('button');
+            favButton.textContent = isFavorite
+                ? `Remove ${language} from Favorites`
+                : `Add ${language} to Favorites`;
+
+            // Prevent card click when the button is clicked
+            favButton.onclick = (e) => {
+                e.stopPropagation(); // Stops the card's onclick event
+                toggleFavorite(language);
+            };
+
+            card.appendChild(favButton);
+            return card;
         }
 
-        // Close the modal when the X button is clicked
-        closeBtn.onclick = function() {
-            modal.style.display = "none";
-        }
+        // Function to render favorites dynamically
+        function renderFavorites() {
+            const favoritesContainer = document.getElementById('favorites');
+            favoritesContainer.innerHTML = ''; // Clear current favorites
 
-        // Close the modal if the user clicks outside the modal
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+            if (favorites.length === 0) {
+                favoritesContainer.textContent = 'No favorites added yet.';
+            } else {
+                favorites.forEach(language => {
+                    const card = createLanguageCard(language, true);
+                    favoritesContainer.appendChild(card);
+                });
             }
         }
 
-        // Ensure modal is closed on page load
-        window.onload = function() {
-            modal.style.display = "none"; // Make sure the modal is closed
+        // Function to render languages dynamically
+        function renderLanguages() {
+            const languagesContainer = document.getElementById('languages');
+            languagesContainer.innerHTML = ''; // Clear current list
+
+            languages.forEach(language => {
+                if (!favorites.includes(language)) {
+                    const card = createLanguageCard(language, false);
+                    languagesContainer.appendChild(card);
+                }
+            });
+        }
+
+        // Function to toggle favorite status
+        function toggleFavorite(language) {
+            if (favorites.includes(language)) {
+                favorites = favorites.filter(fav => fav !== language); // Remove from favorites
+            } else {
+                favorites.push(language); // Add to favorites
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites)); // Update localStorage
+            renderFavorites(); // Re-render the favorites section
+            renderLanguages(); // Re-render the languages section
+        }
+
+        // Function to open the chat for a specific language
+        function openChat(language) {
+            let urlLanguage = language.toLowerCase().replace(/\s+/g, '-');
+            window.location.href = `http://127.0.0.1:5000/${urlLanguage}/`;
+        }
+
+        // Initialize the page
+        window.onload = function () {
+            renderFavorites(); // Render the favorites section
+            renderLanguages(); // Render the languages section
         };
+
     </script>
-    <script src="/static/script.js"></script>
+
 </body>
 </html>
