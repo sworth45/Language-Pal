@@ -10,13 +10,15 @@
             padding: 0;
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: row;
             height: 100vh;
         }
 
-        h1 {
-            text-align: center;
-            margin: 20px 0;
+        #sidebar {
+            width: 250px;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
         }
 
         #chat-container {
@@ -24,19 +26,15 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            max-width: 800px;
-            margin: 0 auto;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         #chat-box {
             flex-grow: 1;
             border: 1px solid #ddd;
             border-radius: 5px;
-            height: 400px;
-            overflow-y: auto;
             padding: 10px;
+            overflow-y: auto;
             background-color: #f9f9f9;
         }
 
@@ -68,79 +66,16 @@
         button:hover {
             background-color: #0056b3;
         }
-
-        #toggle-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: left 0.3s;
-        }
-
-        #conversation-panel {
-            width: 250px;
-            background: #f1f1f1;
-            border-right: 1px solid #ccc;
-            padding: 10px;
-            position: absolute;
-            top: 0;
-            left: -250px; /* Hidden offscreen */
-            height: 100%;
-            transition: left 0.3s;
-        }
-
-        #conversation-panel.active {
-            left: 0; /* Slide in */
-        }
-
-        .conversation {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #fff;
-            margin-top: 10px;
-            padding: 5px;
-        }
-
-        /* Proficiency toggle styles */
-        #proficiency-container {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .proficiency-toggle {
-            display: flex;
-            align-items: center;
-        }
-
-        .proficiency-toggle label {
-            margin-right: 10px;
-        }
-
-        .proficiency-toggle select {
-            padding: 5px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
 
-    <button id="toggle-button" onclick="toggleConversation()">Toggle Conversations</button>
-
-    <div id="conversation-panel">
+    <div id="sidebar">
         <h2>Previous Conversations</h2>
-        <div id="conversation" class="conversation">
-            <!-- Previous conversations will appear here -->
+        <div id="conversation-list">
+            <!-- Previous conversations will be listed here -->
         </div>
-        <button onclick="newConversation()">Start New Conversation</button>
+        <button onclick="startNewConversation()">Start New Conversation</button>
     </div>
 
     <div id="chat-container">
@@ -154,43 +89,46 @@
             <input type="text" id="user-input" placeholder="Type a message..." />
             <button onclick="sendMessage()">Send</button>
         </div>
-
-        <div id="proficiency-container">
-            <div class="proficiency-toggle">
-                <label for="proficiency-select">Proficiency Level:</label>
-                <select id="proficiency-select" onchange="changeProficiency()">
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="button-container">
-            <button onclick="goBack()">Go Back to Homepage</button>
-        </div>
     </div>
 
     <script>
         let currentConversationId = 0;
+        let newConversation = false;
+        let currentConversationIndex = null;
 
-        function goBack() {
-            window.location.href = '/';
+        function fetchConversations() {
+            fetch(`/get_conversation/{{ language }}`)
+                .then(response => response.json())
+                .then(data => {
+                    let conversationList = document.getElementById('conversation-list');
+                    conversationList.innerHTML = "";  // Clear current list
+                    data.forEach((conv, index) => {
+                        let convButton = document.createElement('button');
+                        convButton.textContent = `Conversation ${index + 1}`;
+                        convButton.onclick = () => loadConversation(index);
+                        conversationList.appendChild(convButton);
+                    });
+                });
         }
 
-        function toggleConversation() {
-            const panel = document.getElementById('conversation-panel');
-            const button = document.getElementById('toggle-button');
-            panel.classList.toggle('active');
-            button.style.left = panel.classList.contains('active') ? '250px' : '20px'; // Move button with the panel
-            if (panel.classList.contains('active')) {
-                fetchConversation(); // Fetch previous conversation when opening
-            }
+        function loadConversation(index) {
+            fetch(`/get_conversation/{{ language }}`)
+                .then(response => response.json())
+                .then(data => {
+                    let chatBox = document.getElementById('chat-box');
+                    chatBox.innerHTML = "";  // Clear current chat box
+                    data[index].forEach(message => {
+                        chatBox.innerHTML += `<p><strong>You:</strong> ${message.user}</p>`;
+                        chatBox.innerHTML += `<p><strong>Language Pal:</strong> ${message.bot}</p>`;
+                    });
+                    currentConversationIndex = index;  // Set the current conversation index
+                });
         }
 
-        function newConversation() {
-            currentConversationId += 1;  // Increment to a new conversation ID
-            document.getElementById('chat-box').innerHTML = "";  // Clear chat box for new conversation
+        function startNewConversation() {
+            newConversation = true;
+            currentConversationIndex = null;  // Reset the current conversation index
+            document.getElementById('chat-box').innerHTML = '';  // Clear the chat box for a new conversation
         }
 
         function sendMessage() {
@@ -201,43 +139,33 @@
             chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
             document.getElementById('user-input').value = "";  // Clear the input field
 
-            // Get the selected proficiency level
-            let proficiencyLevel = document.getElementById('proficiency-select').value;
-
             fetch('/send_message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({message: userMessage, language: '{{ language }}', conversation_id: currentConversationId, proficiency: proficiencyLevel})
+                body: JSON.stringify({
+                    message: userMessage,
+                    language: '{{ language }}',
+                    new_conversation: newConversation,
+                    conversation_index: currentConversationIndex
+                })
             })
             .then(response => response.json())
             .then(data => {
                 chatBox.innerHTML += `<p><strong>Language Pal:</strong> ${data.response}</p>`;
+                fetchConversations();  // Refresh the conversation list
                 chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom of the chat box
+                newConversation = false;  // Reset the new conversation flag
+                if (currentConversationIndex === null) {
+                    currentConversationIndex = data.conversations.length - 1;  // Set the current conversation index to the new conversation
+                }
             });
         }
 
-        function fetchConversation() {
-            fetch(`/get_conversation/{{ language }}`)
-                .then(response => response.json())
-                .then(data => {
-                    let conversationDiv = document.getElementById('conversation');
-                    conversationDiv.innerHTML = "";  // Clear current conversation
-                    data.forEach((conv, index) => {
-                        conversationDiv.innerHTML += `<h3>Conversation ${index + 1}</h3>`;
-                        conv.forEach(message => {
-                            conversationDiv.innerHTML += `<p><strong>You:</strong> ${message.user}</p>`;
-                            conversationDiv.innerHTML += `<p><strong>Language Pal:</strong> ${message.bot}</p>`;
-                        });
-                    });
-                });
-        }
-
-        function changeProficiency() {
-            // This function can be used to handle proficiency level change events if needed
-            console.log("Proficiency level changed to: " + document.getElementById('proficiency-select').value);
-        }
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchConversations();
+        });
     </script>
 </body>
 </html>
