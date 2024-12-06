@@ -128,16 +128,50 @@ def send_message():
     conversation_index = data.get('conversation_index')
 
     response_message = "This is a static response for testing."
-
-    if language == "French":
+    if language == "Spanish":
+        if language_counts["Spanish"] == 0:
+            language_counts["Spanish"] += 1
+            # Hola
+            response_message = "¡Hola! ¿Cómo estas?"
+        elif language_counts["Spanish"] == 1:
+            language_counts["Spanish"] += 1
+            # Todo bien, gracias. ¿Cómo estás? 
+            response_message = "Estoy bien, gracias. ¿En qué estás trabajando hoy?"
+        elif language_counts["Spanish"] == 2:
+            language_counts["Spanish"] += 1
+            # ¡Qué bueno! Necesito ayuda.
+            response_message = "¡Perfecto! ¿Algo en mente o exploramos?"
+        elif language_counts["Spanish"] == 3:
+            language_counts["Spanish"] += 1
+            # ¿Puedes ayudarme?
+            response_message = "¡Sí! ¿En qué necesitas ayuda?"
+        elif language_counts["Spanish"] == 4:
+            # Adios
+            language_counts["Spanish"] += 1
+            response_message = "¡Adiós!"
+            # STOP HERE
+        else:
+            response_message = "Estoy bien, gracias. ¿En qué estás trabajando hoy?"
+    elif language == "French":
         if language_counts["French"] == 0:
             language_counts["French"] += 1
-            response_message = "Bonjour"
+            # Bonjour
+            response_message = "Bonjour ! Comment ça va aujourd'hui?"
         elif language_counts["French"] == 1:
             language_counts["French"] += 1
-            response_message = "Ça va bien. Où es-tu?"
+            # Ca va bien, merci. Et tu, comment ca va?
+            response_message = "Je vais très bien, merci! Qu'as-tu prévu de faire aujourd'hui?"
         elif language_counts["French"] == 2:
-            response_message = "Au revoir!"
+            language_counts["French"] += 1
+            # Aujourd'hui, je vais aller du ski
+            response_message = "Excellent! Le ski, c’est toujours une activité formidable. Tu préfères les pistes faciles ou les plus difficiles?"
+        elif language_counts["French"] == 3:
+            language_counts["French"] += 1
+            # Je prefere les pistes tres difficiles! Ou est les collines?
+            response_message = "Ah, un amateur de défis! Les collines sont un peu plus loin, mais elles offrent une vue incroyable. Tu es prêt à relever ce défi?"
+        elif language_counts["French"] == 4:
+            # Oui, je suis pret. Au revoir!
+            response_message = "Parfait! Amuse-toi bien et à bientôt!"
     elif language == "Czech":
         if language_counts["Czech"] == 0:
             language_counts["Czech"] += 1
