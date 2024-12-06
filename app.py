@@ -52,10 +52,14 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
 
+
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login/', methods=['GET', 'POST'])
 
 def login():
+    """
+    Hardcoded login function that always redirects to home
+    """
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -75,6 +79,7 @@ def login():
 
 
         return redirect(url_for('home'))
+    
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -106,26 +111,37 @@ def signup():
 
 @app.route('/languages')
 def languages():
+    """
+    Languages function
+    """
     return jsonify({
         'favorites': favorite_languages,
-        'languages': [lang for lang in available_languages if lang not in favorite_languages]
+        'languages': [lang for lang in available_languages
+                      if lang not in favorite_languages]
     })
+
 
 @app.route('/<language>/')
 def chat(language):
+    """
+    Render the chat page for the selected language.
+    """
     language = language.capitalize()
+    
     if language in available_languages:
         return render_template('chat.html', language=language)
     else:
         return redirect(url_for('home'))
 
+
 @app.route('/send_message', methods=['POST'])
 def send_message():
+    """
+    Receive the user's message and return a predefined response.
+    """
     data = request.get_json()
     language = data.get('language')
     user_message = data.get('message')
-    new_conversation = data.get('new_conversation', False)
-    conversation_index = data.get('conversation_index')
 
     response_message = "This is a static response for testing."
     if language == "Spanish":
@@ -180,15 +196,11 @@ def send_message():
             language_counts["Czech"] += 1
             response_message = "Jaký máš plán na dnešní den?"
 
-    # Start a new conversation if requested
-    if new_conversation or conversation_index is None:
-        conversations[language].append([])
-        conversation_index = len(conversations[language]) - 1
-
-    # Add the message to the current conversation
-    conversations[language][conversation_index].append({'user': user_message, 'bot': response_message})
+    # Store the conversation
+    conversations[language].append({'user': user_message, 'bot': response_message})
 
     return jsonify({'response': response_message, 'conversations': conversations[language]})
+
 
 @app.route('/get_conversation/<language>', methods=['GET'])
 def get_conversation(language):
