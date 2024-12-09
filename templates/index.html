@@ -11,9 +11,6 @@
         h1{
             color:white
         }
-        h2{
-            color:white
-        }
 
         .header {
             background-color: #333;
@@ -59,6 +56,7 @@
         }
         .language-card {
             border: 1px solid #ccc;
+            background: white;
             padding: 20px;
             width: 200px;
             text-align: center;
@@ -84,6 +82,13 @@
         .language-card button:hover {
             background-color: #218838;
         }
+        body {
+            background-image: url('/static/world-map-background.jpg');
+            background-size: cover; /* Ensure it covers the entire viewport */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat; /* Avoid repeating the image */
+        }
+        
     </style>
 </head>
 <body>
@@ -99,14 +104,14 @@
         <button id="info-button">What is Language Pal?</button>
     
         <div>
-            <h2>Favorites</h2>
+            <h2 style = "color: white;">Favorites</h2>
             <div id="favorites" class="language-container">
                 <!-- Favorite languages will be dynamically inserted here -->
             </div>
         </div>
     
         <div>
-            <h2>Languages</h2>
+            <h2 style = "color: white;">Languages</h2>
             <div id="languages" class="language-container">
                 <!-- Language cards will be dynamically inserted here -->
             </div>
@@ -154,10 +159,12 @@
 
             if (favorites.length === 0) {
                 favoritesContainer.textContent = 'No favorites added yet.';
+                favoritesContainer.style.color = 'white';
             } else {
                 favorites.forEach(language => {
                     const card = createLanguageCard(language, true);
                     favoritesContainer.appendChild(card);
+                    favoritesContainer.style.color = 'black';
                 });
             }
         }
