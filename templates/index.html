@@ -104,7 +104,7 @@
                 <!-- Language cards will be dynamically inserted here -->
             </div>
         </div>
-    </div>    
+    </div>  
 
     <script>
         // Example list of languages
@@ -188,11 +188,27 @@
 
         // Initialize the page
         window.onload = function () {
-            renderFavorites(); // Render the favorites section
-            renderLanguages(); // Render the languages section
+            // Ensure modal is closed
+            modal.style.display = "none";
+
+            // Render favorites and languages
+            renderFavorites();
+            renderLanguages();
         };
 
     </script>
+
+    <!-- Modal structure -->
+    <div id="info-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>What is Language Pal?</h2>
+            <p>Language Pal helps you practice languages at your own pace. 
+                Simply select a language, then choose your skill level (beginner, intermediate, advanced), and start a conversation by typing any message. 
+                You'll receive natural responses from the software, so it's a perfect, judgment-free space to improve your language skills!</p>
+        </div>
+    </div>
+
     <script>
         // Get modal element and buttons
         var modal = document.getElementById('info-modal');
@@ -215,11 +231,6 @@
                 modal.style.display = "none";
             }
         }
-
-        // Ensure modal is closed on page load
-        window.onload = function() {
-            modal.style.display = "none"; // Make sure the modal is closed
-        };
     </script>
 
 </body>
