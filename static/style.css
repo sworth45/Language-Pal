@@ -5,13 +5,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    /* height: 100vh; */
     background-color: #f4f4f4;
 }
 
 .container {
     text-align: center;
-    max-width: 600px;
+    max-width: 800px;
 }
 
 button {
@@ -19,7 +19,7 @@ button {
     width: 100%;
     margin: 10px 0;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 18px;
     background-color: #007bff;
     color: white;
