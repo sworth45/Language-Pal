@@ -143,6 +143,10 @@ def send_message():
     language = data.get('language')
     user_message = data.get('message')
 
+    # FIX
+    new_conversation = data.get('new_conversation', False)
+    conversation_index = data.get('conversation_index')
+
     response_message = "This is a static response for testing."
     if language == "Spanish":
         if language_counts["Spanish"] == 0:
@@ -197,7 +201,13 @@ def send_message():
             response_message = "Jaký máš plán na dnešní den?"
 
     # Store the conversation
-    conversations[language].append({'user': user_message, 'bot': response_message})
+    # FIX
+
+    if new_conversation or conversation_index is None:
+        conversations[language].append([])
+        conversation_index = len(conversations[language]) - 1
+    conversations[language][conversation_index].append({'user': user_message, 'bot': response_message})
+    #conversations[language].append({'user': user_message, 'bot': response_message})
 
     return jsonify({'response': response_message, 'conversations': conversations[language]})
 
