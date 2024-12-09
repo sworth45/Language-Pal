@@ -171,7 +171,7 @@ def send_message():
             response_message = "¡Adiós!"
             # STOP HERE
         else:
-            response_message = "Estoy bien, gracias. ¿En qué estás trabajando hoy?"
+            response_message = "¿Qué tal?"
     elif language == "French":
         if language_counts["French"] == 0:
             language_counts["French"] += 1
