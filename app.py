@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, jsonify, s
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import db, User, user_data
+import time
 
 app = Flask(__name__)
 
@@ -136,6 +137,7 @@ def chat(language):
 
 @app.route('/send_message', methods=['POST'])
 def send_message():
+    time.sleep(1)
     """
     Receive the user's message and return a predefined response.
     """
